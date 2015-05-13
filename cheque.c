@@ -1,87 +1,102 @@
-int comando_cheque(unsigned int valor, unsigned long int refe, unsigned long refb, unsigned long refch)
+#ifndef cheque
+#define
+
+struct _cheque
 {
-	cheque novo_cheque = cria_cheque(valor, refe, refb, refch);
+	unsigned long int ref; 
+	unsigned long int valor;
+	cliente emissor;
+	cliente beneficiario;
+	struct _cheque* anterior_hash;
+	struct _cheque* sucessor_hash;
+	struct _cheque* anterior_tempo;
+	struct _cheque* sucessor_tempo;
+};
 
-	n_cheques++;
+typedef struct _cheque* cheque;
 
-	return 0;
-}
+#define REF(A) { A->ref }
+#define VALOR(A) { A->valor }
+#define EMISSOR(A) { A->emissor}
+#define BENIFICIARIO(A) { A->beneficiario }
+#define ANTERIOR_HASH(A) { A->anterior_hash }
+#define SUCESSOR_HASH(A) { A->sucessor_hash }
+#define ANTERIOR_TEMPO(A) { A->anterior_tempo }
+#define SUCESSOR_TEMPO(A) { A->sucessor_tempo }
 
-int comando_processa(void)
-{	
-	cheque prox_mais_antigo = SUCESSOR_TEMPO(cheque_mais_antigo);
+#define HASH_SIZE 196613 /* http://planetmath.org/goodhashtableprimes */
 
-	remove_cheque(cheque_mais_antigo);
+static cheque HT_cheques[HASH_SIZE];
+static cheque cheque_mais_antigo;
 
-	cheque_mais_antigo = prox_mais_antigo;
-
-	n_cheques--;
-	
-	return 0;	
-}
-
-int comando_processaR(unsigned int refch) 
+cheque cria_cheque(unsigned int valor, unsigned long refch, unsigned long ref_emi, unsigned long ref_ben)
 {
-	
-	if refch == REF(cheque_mais_antigo);
-		return comando_processa();
+	cheque novo_cheque = (cheque) malloc(sizeof(struct _cheque));
+	REF(novo_cheque) = refch;
 
-	else if (refch == REF(cheque_mais_novo));
-	{	
-		cheque prox_mais_novo = ANTERIOR_TEMPO(cheque_mais_novo);
-		remove_cheque(cheque_mais_novo);
-		cheque_mais_novo = prox_mais_novo;
-	}
-	
-	else
-	{	
-		cheque cheque_alvo = seek_cheque(refch);
+	VALOR(novo_cheque) = valor;
 
-		if (cheque_alvo == NULL)
-			printf("Cheque %lu does not exist", refch);
-		else 
-			remove_cheque(cheque_alvo);
-	}
-	
-	n_cheques--; 
+	cliente emissor = procura_cliente(ref_emi);
 
-	return 0;
-}
+	cliente beneficiario = procura_cliente(ref_ben);
 
-int comando_infocheque(unsigned long int refch) 
-{
-	cheque cheque_alvo = seek_cheque(refch);
+	if (emissor == NULL) 
+		emissor = cria_cliente(ref_emi, valor, 'e');
 
-	printf("Cheque-info: %lu %lu %lu --> %lu\n", 
-	REF(cheque_alvo), VALOR(cheque_alvo), REF_EMI(cheque_alvo), REF_BEN(cheque_alvo) );
+	if (beneficiario == NULL)
+		beneficiario = cria_cliente(ref_ben, valor, 'b');
 
-	return 0;
-}
+	EMISSOR(novo_cheque) = emissor;
+	BENEFICIARIO(novo_cheque) = beneficiario;
 
-int comando_infocliente(unsigned long int refcl)
-{
-	cliente cliente_alvo = seek_cliente(refcl);
-
-	printf("Cliente-info: %lu %u %lu %u %lu\n", 
-	REF(cliente_alvo), N_CH_OUT(cliente_alvo), V_CH_OUT(cliente_alvo), N_CH_IN(cliente_alvo), V_CH_IN(cliente_alvo) );
-
-	return 0;
+	return novo_cheque;
 }
 
 
-void comando_info(void)
+void insere_cheque(cheque cheque_alvo)
 {
-	cliente cliente_alvo = cliente_mais_baixo; /* var global*/
+	/* 1º: Insere na hash table (HT) de cheques utilizando a hash function (HF). */
+	ANTERIOR_HASH(cheque_alvo) = NULL;
+	SUCESSOR_TEMPO(cheque_alvo) = NULL;
+	unsigned int hash = HF_cheques(cheque_alvo);
+	cheque primeiro_cheque_hash = HT_cheques[hash];
 
-	while (cliente_alvo!= NULL)
+	if (primeiro_cheque_hash == NULL)
 	{
-		printf("*%lu %u %lu %u %lu\n", 
-		REF(cliente_alvo), N_CH_OUT(cliente_alvo), V_CH_OUT(cliente_alvo), N_CH_IN(cliente_alvo), V_CH_IN(cliente_alvo) );
-		cliente_alvo = SUCESSOR_REF(cliente_actual);
+		HT_cheques[hash] = cheque_alvo;
+		SUCESSOR_HASH(cheque_alvo) = NULL;
 	}
+	else 
+	{
+		ANTERIOR
+	}
+		
+		
 
-	return 0;
 }
 
-	ajusta_emissor(refemissor, valor_dado);
-	ajusta_beneficiario(refbeneficiario, valor_dado);
+void apaga_cheque(cheque cheque_alvo)
+{
+	SUCESSOR_HASH(ANTERIOR_HASH(cheque_alvo) = SUCESSOR_HASH(cheque_alvo); 
+	ANTERIOR_HASH(SUCESSOR_HASH(cheque_alvo)) = ANTERIOR_HASH(cheque_alvo);
+	SUCESSOR_TEMPO(ANTERIOR_HASH(cheque_alvo)) = SUCESSOR_TEMPO(cheque_alvo); 
+	ANTERIOR_TEMPO(SUCESSOR_HASH(cheque_alvo)) = ANTERIOR_TEMPO(cheque_alvo);
+	free(cheque_alvo);
+}
+
+
+cheque seek_cheque(unsigned long int ref)
+{
+	cheque cheque_alvo = HT_cheques[HF_cheques(ref)];
+	while (REF(cheque_alvo) != ref && cheque_alvo != NULL)
+		cheque_alvo = SUCESSOR_HASH(cheque_alvo);
+	return cheque_alvo;
+}
+
+unsigned long int HF_clientes(cliente cliente_alvo)
+{	return REF(cliente_alvo)*(REF(cliente_alvo) + 3) % HASH_SIZE 	}
+/*
+http://www.cs.hmc.edu/~geoff/classes/hmc.cs070.200101/homework10/hashfuncs.html
+*/
+
+#endif
