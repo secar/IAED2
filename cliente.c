@@ -26,7 +26,10 @@ struct _cliente
 
 typedef _cliente* cliente;
 
-cliente cria_cliente(unsigned long int ref, unsigned long int valor, char tipo)
+cliente HT_clientes[HASH_SIZE];
+cliente cliente_mais_baixo;
+
+cliente cria_cliente(unsigned long int ref, unsigned long int valor_ini, char tipo)
 /* Um cliente e criado se nao existir apos um cheque recem-criado referencia-lo. */
 {
 	cliente novo_cliente = (cliente) malloc(sizeof(struct _cliente));
@@ -37,13 +40,13 @@ cliente cria_cliente(unsigned long int ref, unsigned long int valor, char tipo)
 	{
 		case 'b':
 			N_CH_IN(novo_cliente) = 1;
-			V_CH_IN(novo_cliente) = valor;
+			V_CH_IN(novo_cliente) = valor_ini;
 			N_CH_OUT(novo_cliente) = 0;
 			V_CH_OUT(novo_cliente) = 0;
 			break;
 		case 'e':
 			N_CH_OUT(novo_cliente) = 1;
-			V_CH_OUT(novo_cliente) = valor;
+			V_CH_OUT(novo_cliente) = valor_ini;
 			N_CH_IN(novo_cliente) = 0;
 			V_CH_IN(novo_cliente) = 0;
 	}
@@ -52,6 +55,10 @@ cliente cria_cliente(unsigned long int ref, unsigned long int valor, char tipo)
 	
 }
 
+void insere_cliente(cliente cliente_alvo)
+{
+	
+}
 
 cliente seek_cliente(unsigned long int referencia_alvo)
 }
@@ -74,23 +81,6 @@ void apaga_cliente(cliente cliente_alvo)
 	anterior_hash(sucessor_hash(cliente_alvo)) = anterior_hash(cliente_alvo);
 
 	free(cliente_alvo);		
-}
-
-ajusta_emissor(unsigned long int ref_emi, long int* valor_dado)
-{
-	cliente emissor = seek_cliente(ref_emi);
-	
-	if (emissor == NULL)
-		cria_cliente(ref_emi);
-
-	else {
-
-		(emissor->nche)++;
-
-		(emissor->vche) = (emissor->vche) + (*valor_dado);
-
-	} 	
-
 }
 
 
