@@ -1,87 +1,103 @@
-int comando_cheque(unsigned int valor, unsigned long int refe, unsigned long refb, unsigned long refch)
+
+char executa_comando(char linha[])
 {
-	cheque novo_cheque = cria_cheque(valor, refe, refb, refch);
 
-	n_cheques++;
+	char** linha_dividida;
+	char* comando;
 
-	return 0;
-}
+	linha[strlen(linha)-1] = ' '; /* Para compreensao da funcao strtok. 
+					 Substitui o '\n' de fgets. */
+	linha_dividida = divide_linha(linha);
+	comando = linha_dividida[0];
 
-int comando_processa(void)
-{	
-	cheque prox_mais_antigo = SUCESSOR_TEMPO(cheque_mais_antigo);
+	#define eq_string(A,B) !strcmp(A,B) /*conveniencia*/
 
-	remove_cheque(cheque_mais_antigo);
-
-	cheque_mais_antigo = prox_mais_antigo;
-
-	n_cheques--;
-	
-	return 0;	
-}
-
-int comando_processaR(unsigned int refch) 
-{
-	
-	if refch == REF(cheque_mais_antigo);
-		return comando_processa();
-
-	else if (refch == REF(cheque_mais_novo));
-	{	
-		cheque prox_mais_novo = ANTERIOR_TEMPO(cheque_mais_novo);
-		remove_cheque(cheque_mais_novo);
-		cheque_mais_novo = prox_mais_novo;
-	}
-	
-	else
-	{	
-		cheque cheque_alvo = seek_cheque(refch);
-
-		if (cheque_alvo == NULL)
-			printf("Cheque %lu does not exist", refch);
-		else 
-			remove_cheque(cheque_alvo);
-	}
-	
-	n_cheques--; 
-
-	return 0;
-}
-
-int comando_infocheque(unsigned long int refch) 
-{
-	cheque cheque_alvo = seek_cheque(refch);
-
-	printf("Cheque-info: %lu %lu %lu --> %lu\n", 
-	REF(cheque_alvo), VALOR(cheque_alvo), REF_EMI(cheque_alvo), REF_BEN(cheque_alvo) );
-
-	return 0;
-}
-
-int comando_infocliente(unsigned long int refcl)
-{
-	cliente cliente_alvo = seek_cliente(refcl);
-
-	printf("Cliente-info: %lu %u %lu %u %lu\n", 
-	REF(cliente_alvo), N_CH_OUT(cliente_alvo), V_CH_OUT(cliente_alvo), N_CH_IN(cliente_alvo), V_CH_IN(cliente_alvo) );
-
-	return 0;
-}
-
-
-void comando_info(void)
-{
-	cliente cliente_alvo = cliente_mais_baixo; /* var global*/
-
-	while (cliente_alvo!= NULL)
+	if (eq_string("cheque", comando))
 	{
-		printf("*%lu %u %lu %u %lu\n", 
-		REF(cliente_alvo), N_CH_OUT(cliente_alvo), V_CH_OUT(cliente_alvo), N_CH_IN(cliente_alvo), V_CH_IN(cliente_alvo) );
-		cliente_alvo = SUCESSOR_REF(cliente_actual);
+		char* valor_str = linha_dividida[1];
+		char* refe_str = linha_dividida[2];
+		char* refb_str = linha_dividida[3];
+		char* refch_str = linha_dividida[4];
+
+		if (valor_str != NULL && refe_str != NULL && refb_str != NULL && refch_str != NULL)
+		{
+			unsigned int valor = (unsigned int) strtoul(valor_str, NULL, 10);
+
+			unsigned long int refe = strtoul(refe_str, NULL, 10);
+			unsigned long int refb = strtoul(refb_str, NULL, 10);
+			unsigned long int refch = strtoul(refc_str, NULL, 10);
+
+			return comando_cheque(valor, refe, refb, refch);
+		}
+	}
+		
+	else if (eq_string("processa", comando))
+		return comando_processa();
+	
+	else if (eq_string("processaR", comando))
+	{
+		char* refch_str = linha_dividida[1];
+
+		if (refch_str != NULL)
+		{
+			unsigned long int refch = strtoul(refch_str, NULL, 10);
+
+			return comando_processaR(refch);
+		}		
+			 		
 	}
 
-	return 0;
+	else if (eq_string("infocheque", comando))
+	{
+		char* refch_str = linha_dividida[1];
+
+		if (refch_str != NULL)
+		{
+			unsigned long int refch = strtoul(refch_str, NULL, 10);
+	
+			return comando_infocheque(refch);
+		}
+	}
+
+	else if (eq_string("infocliente", comando))
+	{
+		char* refcl_str = linha_dividida[1];
+
+		if (refcl_str != NULL)
+		{	
+			unsigned long int refcl = strtoul(refcl_str, NULL, 10);
+
+			return comando_infocliente(refcl);
+
+		}
+	}
+
+	else if (eq_string("info", comando))
+
+		return comando_info();		
+
+	else if (eq_string("sair", comando))
+
+		return comando_sair();
+
+	else
+                return -1;
+
 }
 
-	ajusta_emissor(refemissor, valor_dado);
-	ajusta_beneficiario(refbeneficiario, valor_dado);
+
+char** divide_linha(char linha[])
+{	
+	#define MAX_NIL 4 /* Numero de informacoes por linha excepto o comando */
+	static char* tokens[MAX_NIL+1]; 
+	char* token;
+	char i;
+	token = strtok(linha, " "); /* este token e o letra do comando */
+
+	for (i = 0 ; i < MAX_NIL; i++)
+	{
+		tokens[i] = token;		
+		token = strtok(NULL, " ");
+	}
+	return tokens;
+}
