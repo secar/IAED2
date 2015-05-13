@@ -1,51 +1,86 @@
-cheque comando_processa(void)
-{	
-	cheque novo_mais_antigo = sucessor_tempo(cheque_mais_antigo); /* variavel global */
+int comando_cheque(unsigned int valor, unsigned long int refe, unsigned long refb, unsigned long refch)
+{
+	cheque novo_cheque = cria_cheque(valor, refe, refb, refch);
 
-	remove_cheque(cheque_mais_antigo);	
+	n_cheques++;
 
-	return novo_mais_antigo;	
+	return 0;
 }
 
-void comando_processaR(unsigned int refch) 
+int comando_processa(void)
+{	
+	cheque prox_mais_antigo = SUCESSOR_TEMPO(cheque_mais_antigo);
+
+	remove_cheque(cheque_mais_antigo);
+
+	cheque_mais_antigo = prox_mais_antigo;
+
+	n_cheques--;
+	
+	return 0;	
+}
+
+int comando_processaR(unsigned int refch) 
+{
+	
+	if refch == REF(cheque_mais_antigo);
+		return comando_processa();
+
+	else if (refch == REF(cheque_mais_novo));
+	{	
+		cheque prox_mais_novo = ANTERIOR_TEMPO(cheque_mais_novo);
+		remove_cheque(cheque_mais_novo);
+		cheque_mais_novo = prox_mais_novo;
+	}
+	
+	else
+	{	
+		cheque cheque_alvo = seek_cheque(refch);
+
+		if (cheque_alvo == NULL)
+			printf("Cheque %lu does not exist", refch);
+		else 
+			remove_cheque(cheque_alvo);
+	}
+	
+	n_cheques--; 
+
+	return 0;
+}
+
+int comando_infocheque(unsigned long int refch) 
 {
 	cheque cheque_alvo = seek_cheque(refch);
 
-	if (cheque_alvo == NULL)
-		printf("Cheque %lu does not exist", refch);
-	else remove_cheque(cheque_alvo);
-}
-
-void comando_infocheque(unsigned long int refch) 
-{
-	cheque alvo = seek_cheque(refch);
-
 	printf("Cheque-info: %lu %lu %lu --> %lu\n", 
-	ref(alvo), valor(alvo), ref_emi(alvo), ref_ben(alvo) );
+	REF(cheque_alvo), VALOR(cheque_alvo), REF_EMI(cheque_alvo), REF_BEN(cheque_alvo) );
+
+	return 0;
 }
 
-void comando_infocliente(unsigned long int refcl)
+int comando_infocliente(unsigned long int refcl)
 {
-	cliente alvo = seek_cliente(refcl);
+	cliente cliente_alvo = seek_cliente(refcl);
 
-	printf("Cliente-info: %lu %lu %lu --> %lu\n", ref(alvo), 
+	printf("Cliente-info: %lu %u %lu %u %lu\n", 
+	REF(cliente_alvo), N_CH_OUT(cliente_alvo), V_CH_OUT(cliente_alvo), N_CH_IN(cliente_alvo), V_CH_IN(cliente_alvo) );
 
-	valor(alvo), ref_emi(alvo), ref_ben(alvo) );
+	return 0;
 }
 
 
 void comando_info(void)
 {
-	cliente cliente_actual = cliente_mais_baixo;
+	cliente cliente_alvo = cliente_mais_baixo; /* var global*/
 
-	while (cliente_actual != NULL)
+	while (cliente_alvo!= NULL)
 	{
-		printf("*%lu %lu %lu --> %lu\n", 
-
-		ref(alvo), valor(alvo), ref_emi(alvo), ref_ben(alvo) );
-		
-		cliente_actual = SUCESSOR_REF(cliente_actual);
+		printf("*%lu %u %lu %u %lu\n", 
+		REF(cliente_alvo), N_CH_OUT(cliente_alvo), V_CH_OUT(cliente_alvo), N_CH_IN(cliente_alvo), V_CH_IN(cliente_alvo) );
+		cliente_alvo = SUCESSOR_REF(cliente_actual);
 	}
+
+	return 0;
 }
 
 	ajusta_emissor(refemissor, valor_dado);
